@@ -11,4 +11,3 @@ create view favorite_album AS
 select * from song
 where album_id = 5
 with local check option;
-
