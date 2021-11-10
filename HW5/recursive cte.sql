@@ -56,4 +56,4 @@ select * from path_cte j
      join short s
 	 on j.distance = s.distance;
    
-  
+ 
