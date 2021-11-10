@@ -52,3 +52,4 @@ from artist
 where exists(select 1 
 			 from song
 			where song.artist_id = id);
+			
