@@ -48,26 +48,3 @@ SELECT * FROM ARTIST;
 SELECT * FROM GENRE;
 SELECT * FROM PRODUCER;
 SELECT * FROM LABEL;
-
- 
-
-	
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
