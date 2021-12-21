@@ -1,59 +1,45 @@
 create table graph(
-	from_vertex varchar(5) not null,
-	to_vertex varchar(5) not null, 
-	path int not null
+id serial primary key,
+from_node varchar,
+to_node varchar,
+weight integer
 );
 
-insert into graph
-values('s','u',3),
-('s','x',5),
-('u','v',6),
-('u','x',2),
-('x','u',1),
-('x','y',6),
-('x','v',4),
-('y','s',3),
-('y','v',7),
-('v','y',2);
+insert into graph(from_node, to_node, weight) VALUES ('X', 'U', 1);
+insert into graph(from_node, to_node, weight) VALUES ('X', 'Y', 6);
+insert into graph(from_node, to_node, weight) VALUES ('X', 'V', 4);
+insert into graph(from_node, to_node, weight) VALUES ('Y', 'V', 7);
+insert into graph(from_node, to_node, weight) VALUES ('Y', 'S', 3);
+insert into graph(from_node, to_node, weight) VALUES ('S', 'U', 3);
+insert into graph(from_node, to_node, weight) VALUES ('S', 'X', 5);
+insert into graph(from_node, to_node, weight) VALUES ('U', 'V', 6);
+insert into graph(from_node, to_node, weight) VALUES ('U', 'X', 2);
+insert into graph(from_node, to_node, weight) VALUES ('V', 'Y', 2);
 
-select * from graph
-drop table graph
+with recursive graph_cte as (
+select distinct from_node as to_node2, array[from_node] as path, false as cycle, 0 as weight, 'S' as way
+from graph
+where from_node = 'S'
+UNION ALL
+select graph.to_node,
+graph_cte.path || graph.to_node,
+graph.to_node = any (graph_cte.path),
+graph.weight + graph_cte.weight,
+graph_cte.way || ',' || graph.to_node
+from graph inner join graph_cte on (graph_cte.to_node2 = graph.from_node) and not cycle)
+select * from graph_cte where to_node2 = 'Y' and cycle is false;
 
--- все пути из вершины s в y 
-with recursive path_cte (to_vertex2, steps, distance, way)
-   as 
-   (select distinct from_vertex, 0, 0, 's'
-   from graph
-   where from_vertex='s'
-   union all
-   select arrival.to_vertex,
-	      departure.steps + 1,
-	      departure.distance + arrival.path,
-	      departure.way || ',' || arrival.to_vertex
-	      from graph as arrival
-		    join path_cte as departure on departure.to_vertex2 = arrival.from_vertex)
-select * from path_cte where to_vertex2 = 'y';		
-
--- кратчайший путь из s в y и его стоимость
-with recursive path_cte(to_vertex2,steps,distance,way)
-   as
-   (select distinct from_vertex,0,0,'s'
-   from graph
-   where from_vertex='s'
-   union all
-   select arrival.to_vertex,
-      departure.steps + 1,
-      departure.distance + arrival.path,
-      departure.way || ',' || arrival.to_vertex
-   from graph as arrival
-        join path_cte as departure
-              on departure.to_vertex2 = arrival.from_vertex),
-	short(distance)
-	  as(select min(distance)
-		from path_cte
-		where to_vertex2='y')
-select * from path_cte j
-     join short s
-	 on j.distance = s.distance;
-   
+with recursive graph_cte as (
+select distinct from_node as to_node2, array[from_node] as path, false as cycle, 0 as weight, 'S' as way
+from graph
+where from_node = 'S'
+UNION ALL
+select graph.to_node,
+graph_cte.path || graph.to_node,
+graph.to_node = any (graph_cte.path),
+graph.weight + graph_cte.weight,
+graph_cte.way || ',' || graph.to_node
+from graph inner join graph_cte on (graph_cte.to_node2 = graph.from_node) and not cycle),
+short (weight) as (select min(weight) from graph_cte where to_node2 = 'Y')
+select to_node2, way, graph_cte.weight from graph_cte inner join short s on graph_cte.weight = s.weight;
  
