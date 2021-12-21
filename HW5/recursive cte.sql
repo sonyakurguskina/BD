@@ -16,6 +16,8 @@ insert into graph(from_node, to_node, weight) VALUES ('U', 'V', 6);
 insert into graph(from_node, to_node, weight) VALUES ('U', 'X', 2);
 insert into graph(from_node, to_node, weight) VALUES ('V', 'Y', 2);
 
+
+--все пути из вершины S в Y 
 with recursive graph_cte as (
 select distinct from_node as to_node2, array[from_node] as path, false as cycle, 0 as weight, 'S' as way
 from graph
@@ -29,6 +31,8 @@ graph_cte.way || ',' || graph.to_node
 from graph inner join graph_cte on (graph_cte.to_node2 = graph.from_node) and not cycle)
 select * from graph_cte where to_node2 = 'Y' and cycle is false;
 
+
+--кратчайший путь и его стоимость
 with recursive graph_cte as (
 select distinct from_node as to_node2, array[from_node] as path, false as cycle, 0 as weight, 'S' as way
 from graph
